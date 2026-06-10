@@ -1,0 +1,31 @@
+Problem Statement
+You have been given a String ‘num’ Array. every string in the num Array is an anagram of every other string with the same length.
+Check strings A and B are equal if we can swap Four letters (in different positions) of A so that it equals B. Also, two strings A and B are equal if they are equal.
+
+For example, "store" and "rotse" are similar (if we swapping at positions 0 and 3 and 1 and 2), and "ortse" and "stroe" are similar, but "tesro" is not similar to "rotse", "ortse" , "stroe".
+
+If we connected this above form two groups {"rotse", "ortse" , "stroe"} and {"tesro"}.  Notice that "rotse" and "stroe" are in the same group despite not being similar.  Means a Single Group form even if at least one word equal to any word of that group
+
+Note:- Single Word contains only one single Alphabetic Character
+
+Return the number of groups form.
+
+Input Format
+The first Line contains the Stirng Array size Represented by `N` Integer
+Second line contains the string array. 
+
+Output Format
+Return the number of groups formed.
+
+Constraints
+0 <= num.length <= 2*10^2
+1 <= num[i].length <=10^2
+
+Sample Testcase 0
+Testcase Input
+2
+carbon noacbr
+Testcase Output
+2
+Explanation
+group can form between carbon and noacbr
