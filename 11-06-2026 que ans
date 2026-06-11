@@ -1,0 +1,34 @@
+import java.util.Scanner;
+
+public class Main {
+    public static int countValidCombos(int N, int K, int L, int R, String[] deviceTypes, int[] prices) {
+        return count(prices, 0, K, 0, L, R);
+    }
+
+    private static int count(int[] prices, int idx, int k, int sum, int L, int R) {
+        if (k == 0) return (sum >= L && sum <= R) ? 1 : 0;
+        if (idx >= prices.length) return 0;
+        int take = count(prices, idx + 1, k - 1, sum + prices[idx], L, R);
+        int skip = count(prices, idx + 1, k, sum, L, R);
+        return take + skip;
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int N = scanner.nextInt();
+        int K = scanner.nextInt();
+        int L = scanner.nextInt();
+        int R = scanner.nextInt();
+
+        String[] deviceTypes = new String[N];
+        int[] prices = new int[N];
+
+        for (int i = 0; i < N; i++) {
+            deviceTypes[i] = scanner.next();
+            prices[i] = scanner.nextInt();
+        }
+
+        int result = countValidCombos(N, K, L, R, deviceTypes, prices);
+        System.out.println(result);
+    }
+}
