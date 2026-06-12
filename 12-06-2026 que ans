@@ -1,0 +1,67 @@
+import java.util.*;
+
+public class Main {
+
+    public static List<Object> userLogic(int N, int T, List<RoomData> roomData) {
+        // Write your logic here.
+        // Return a list where each element is either:
+        // - A list of T integers representing the AC mode for each hour if a schedule is possible.
+        // - The string "NOT POSSIBLE" if no schedule can be made for a room.
+        return new ArrayList<>();
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int N = scanner.nextInt();
+        int T = scanner.nextInt();
+
+        List<RoomData> roomData = new ArrayList<>();
+        for (int i = 0; i < N; i++) {
+            int K = scanner.nextInt();
+            int E = scanner.nextInt();
+            List<Interval> intervals = new ArrayList<>();
+            for (int j = 0; j < K; j++) {
+                int L = scanner.nextInt();
+                int R = scanner.nextInt();
+                intervals.add(new Interval(L, R));
+            }
+            roomData.add(new RoomData(K, E, intervals));
+        }
+
+        List<Object> results = userLogic(N, T, roomData);
+
+        for (Object result : results) {
+            if (result instanceof String) {
+                System.out.println(result);
+            } else {
+                List<Integer> schedule = (List<Integer>) result;
+                for (int mode : schedule) {
+                    System.out.print(mode + " ");
+                }
+                System.out.println();
+            }
+        }
+    }
+
+    static class RoomData {
+        int K;
+        int E;
+        List<Interval> intervals;
+
+        RoomData(int K, int E, List<Interval> intervals) {
+            this.K = K;
+            this.E = E;
+            this.intervals = intervals;
+        }
+    }
+
+    static class Interval {
+        int L;
+        int R;
+
+        Interval(int L, int R) {
+            this.L = L;
+            this.R = R;
+        }
+    }
+}
