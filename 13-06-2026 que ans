@@ -1,0 +1,68 @@
+import java.util.*;
+
+public class Main {
+
+    static boolean canPartition(int[] arr, int k) {
+        int totalSum = 0;
+
+        for (int num : arr) {
+            totalSum += num;
+        }
+
+        // If total sum is not divisible by k
+        if (totalSum % k != 0) {
+            return false;
+        }
+
+        int target = totalSum / k;
+        boolean[] used = new boolean[arr.length];
+
+        return backtrack(arr, used, k, 0, 0, target);
+    }
+
+    static boolean backtrack(int[] arr, boolean[] used, int k,
+                             int start, int currentSum, int target) {
+
+        // Only one subset left means remaining numbers form valid subset
+        if (k == 1) {
+            return true;
+        }
+
+        // Current subset completed
+        if (currentSum == target) {
+            return backtrack(arr, used, k - 1, 0, 0, target);
+        }
+
+        for (int i = start; i < arr.length; i++) {
+
+            if (!used[i] && currentSum + arr[i] <= target) {
+
+                used[i] = true;
+
+                if (backtrack(arr, used, k, i + 1,
+                        currentSum + arr[i], target)) {
+                    return true;
+                }
+
+                used[i] = false;
+            }
+        }
+
+        return false;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        String[] input = sc.nextLine().split(" ");
+        int[] arr = new int[input.length];
+
+        for (int i = 0; i < input.length; i++) {
+            arr[i] = Integer.parseInt(input[i]);
+        }
+
+        int k = sc.nextInt();
+
+        System.out.println(canPartition(arr, k));
+    }
+}
