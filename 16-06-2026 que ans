@@ -1,0 +1,43 @@
+import java.io.*;
+import java.util.*;
+
+class Main {
+    static long[] value;
+    static int[] left, right;
+    static int count = 0;
+
+    static long dfs(int node) {
+        if (node == -1) return Long.MIN_VALUE;
+
+        long leftMax = dfs(left[node]);
+        long rightMax = dfs(right[node]);
+
+        long maxDescendant = Math.max(leftMax, rightMax);
+
+        if (value[node] > maxDescendant) {
+            count++;
+        }
+
+        return Math.max(value[node], maxDescendant);
+    }
+
+    public static void main(String[] args) throws Exception {
+        Scanner sc = new Scanner(System.in);
+
+        int n = sc.nextInt();
+
+        value = new long[n];
+        left = new int[n];
+        right = new int[n];
+
+        for (int i = 0; i < n; i++) {
+            value[i] = sc.nextLong();
+            left[i] = sc.nextInt();
+            right[i] = sc.nextInt();
+        }
+
+        dfs(0);
+
+        System.out.println(count);
+    }
+}
