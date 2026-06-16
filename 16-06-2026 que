@@ -1,0 +1,111 @@
+Problem Statement
+In a distant galaxy, an interplanetary communication network is built using relay towers. The network forms a binary tree, where each tower can communicate with at most two child towers.
+
+Every tower is assigned a signal strength value.
+
+A tower is called a Peak Relay if its signal strength is strictly greater than the signal strength of every tower in its subtree, excluding itself.
+
+In other words, for a tower to be considered a Peak Relay, no descendant of that tower may have a signal strength greater than or equal to its own.
+
+Leaf towers (towers with no descendants) are always considered Peak Relays.
+
+Given the structure of the communication network, determine the total number of Peak Relay towers.
+
+
+Illustration
+ 
+          50
+         /  \
+       20    30
+      / \    /
+    10  15 25
+ 
+Tower 50 is a Peak Relay because it is greater than all of its descendants: 20, 30, 10, 15, 25.
+Tower 20 is a Peak Relay because it is greater than 10 and 15.
+Tower 30 is a Peak Relay because it is greater than 25.
+Towers 10, 15, and 25 have no descendants and are therefore Peak Relays.
+Hence, the total number of Peak Relay towers is 6.
+
+Input Format
+The first line contains a single integer N, representing the number of towers.
+The next N lines describe the towers.
+The i-th of these lines contains three integers: SignalStrength LeftChild RightChild
+where:
+
+SignalStrength is the signal strength of tower i.
+LeftChild is the index of the left child of tower i.
+RightChild is the index of the right child of tower i.
+A value of -1 indicates that the corresponding child does not exist.
+The towers are indexed from 0 to N − 1, and tower 0 is the root of the communication network.
+
+Output Format
+Print a single integer representing the number of Peak Relay towers in the network.
+
+Constraints
+1 ≤ N ≤ 10000
+
+1 ≤ SignalStrength ≤ 10^9
+
+Sample Testcase 0
+Testcase Input
+6
+50 1 2
+20 3 4
+30 5 -1
+10 -1 -1
+15 -1 -1
+25 -1 -1
+Testcase Output
+6
+Explanation
+           50
+         /      \
+       20       30
+      /   \       /
+    10  15  25
+
+
+
+Tower 50 is a Peak Relay because its signal strength is greater than all of its descendants (20, 30, 10, 15, 25).
+
+
+Tower 20 is a Peak Relay because it is greater than both 10 and 15.
+
+
+Tower 30 is a Peak Relay because it is greater than 25.
+
+
+Towers 10, 15, and 25 are leaf towers and are therefore Peak Relays.
+
+
+Hence, the total number of Peak Relay towers is 6.
+
+Sample Testcase 1
+Testcase Input
+5
+20 1 2
+25 3 4
+10 -1 -1
+5 -1 -1
+7 -1 -1
+Testcase Output
+4
+Explanation
+      20
+       /    \
+     25    10
+    /  \
+   5    7
+
+
+
+Tower 20 is not a Peak Relay because its descendant 25 has a greater signal strength.
+
+
+Tower 25 is a Peak Relay because it is greater than both of its descendants (5 and 7).
+
+
+Towers 10, 5, and 7 are leaf towers and are therefore Peak Relays.
+
+
+Hence, the total number of Peak Relay towers is 4.
