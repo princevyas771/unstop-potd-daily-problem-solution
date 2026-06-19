@@ -1,0 +1,139 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+#define MAXN 10005
+#define MAXM 40005
+
+typedef long long ll;
+
+typedef struct {
+    int to, w, next;
+} Edge;
+
+Edge edges[MAXM];
+int head[MAXN];
+int edgeCnt = 0;
+
+void addEdge(int u, int v, int w) {
+    edges[edgeCnt].to = v;
+    edges[edgeCnt].w = w;
+    edges[edgeCnt].next = head[u];
+    head[u] = edgeCnt++;
+}
+
+typedef struct {
+    ll dist;
+    int node;
+} HeapNode;
+
+HeapNode heap[100000];
+int heapSize = 0;
+
+void swap(HeapNode *a, HeapNode *b) {
+    HeapNode t = *a;
+    *a = *b;
+    *b = t;
+}
+
+void push(ll dist, int node) {
+    heap[++heapSize].dist = dist;
+    heap[heapSize].node = node;
+
+    int i = heapSize;
+    while (i > 1 && heap[i].dist < heap[i / 2].dist) {
+        swap(&heap[i], &heap[i / 2]);
+        i /= 2;
+    }
+}
+
+HeapNode pop() {
+    HeapNode ret = heap[1];
+    heap[1] = heap[heapSize--];
+
+    int i = 1;
+    while (1) {
+        int smallest = i;
+        int l = 2 * i;
+        int r = 2 * i + 1;
+
+        if (l <= heapSize && heap[l].dist < heap[smallest].dist)
+            smallest = l;
+
+        if (r <= heapSize && heap[r].dist < heap[smallest].dist)
+            smallest = r;
+
+        if (smallest == i)
+            break;
+
+        swap(&heap[i], &heap[smallest]);
+        i = smallest;
+    }
+
+    return ret;
+}
+
+int main() {
+    int N, M;
+    scanf("%d %d", &N, &M);
+
+    for (int i = 1; i <= N; i++)
+        head[i] = -1;
+
+    ll decode[MAXN];
+    char s[105];
+
+    for (int i = 1; i <= N; i++) {
+        scanf("%s", s);
+
+        ll cost = 0;
+        for (int j = 0; s[j]; j++)
+            cost += (s[j] - 'a' + 1);
+
+        decode[i] = cost;
+    }
+
+    for (int i = 0; i < M; i++) {
+        int u, v, t;
+        scanf("%d %d %d", &u, &v, &t);
+
+        addEdge(u, v, t);
+        addEdge(v, u, t);
+    }
+
+    int start, end;
+    scanf("%d %d", &start, &end);
+
+    ll dist[MAXN];
+    for (int i = 1; i <= N; i++)
+        dist[i] = LLONG_MAX;
+
+    dist[start] = decode[start];
+    push(dist[start], start);
+
+    while (heapSize) {
+        HeapNode cur = pop();
+        ll d = cur.dist;
+        int u = cur.node;
+
+        if (d != dist[u])
+            continue;
+
+        for (int e = head[u]; e != -1; e = edges[e].next) {
+            int v = edges[e].to;
+            ll nd = d + edges[e].w + decode[v];
+
+            if (nd < dist[v]) {
+                dist[v] = nd;
+                push(nd, v);
+            }
+        }
+    }
+
+    if (dist[end] == LLONG_MAX)
+        printf("-1\n");
+    else
+        printf("%lld\n", dist[end]);
+
+    return 0;
+}
