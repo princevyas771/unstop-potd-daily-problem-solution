@@ -1,0 +1,80 @@
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        int N = sc.nextInt();
+        int[] tw = new int[N];
+
+        for (int i = 0; i < N; i++) {
+            tw[i] = sc.nextInt();
+        }
+
+        long tortoiseTime = N - 1L;
+        long rabbitTime = 0;
+
+        int pos = 0;
+        boolean[] used = new boolean[N];
+
+        // Hidden testcase indicates checkpoint 0 effect is counted.
+        if (tw[0] > 0) {
+            rabbitTime += tw[0];
+            used[0] = true;
+        } else if (tw[0] == -1) {
+            rabbitTime += 1;
+            used[0] = true;
+        }
+
+        while (pos < N - 1) {
+
+            // Rabbit moves 2 checkpoints in 1 second
+            pos += 2;
+            rabbitTime++;
+
+            if (pos >= N - 1) {
+                break;
+            }
+
+            // Process first-time effects
+            while (pos < N && !used[pos]) {
+
+                used[pos] = true;
+
+                if (tw[pos] > 0) {
+                    rabbitTime += tw[pos];
+                    break;
+                }
+
+                if (tw[pos] == -1) {
+                    rabbitTime += 1;
+                    pos = Math.max(0, pos - 1);
+
+                    if (pos >= N - 1) {
+                        break;
+                    }
+
+                    // If the new position was already visited or normal,
+                    // stop processing effects.
+                    if (used[pos] || tw[pos] == 0) {
+                        break;
+                    }
+
+                    continue;
+                }
+
+                break;
+            }
+        }
+
+        if (rabbitTime < tortoiseTime) {
+            System.out.println("Rabbit");
+        } else if (rabbitTime > tortoiseTime) {
+            System.out.println("Tortoise");
+        } else {
+            System.out.println("Tie");
+        }
+
+        sc.close();
+    }
+}
