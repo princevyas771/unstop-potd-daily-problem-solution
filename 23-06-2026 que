@@ -1,0 +1,66 @@
+Problem Statement
+In a futuristic city, autonomous drones deliver parcels across a 2D grid of buildings. Each cell in the grid represents a building with a landing cost — the cost (in energy units) to land on that building.
+
+A drone starts at the top-left corner (0, 0) and must reach the bottom-right corner (N-1, M-1). It can move up, down, left, or right, but cannot fly over buildings with a landing cost of -1 (these are restricted zones).
+
+Your task is to compute the minimum energy the drone needs to spend to reach the destination. The drone must pay the landing cost of each building it enters (including the starting and ending cells).
+
+If it’s not possible to reach the destination, output -1
+
+Input Format
+The first line contains two integers N and M — the number of rows and columns.
+The next N lines each contain M integers — the landing cost of each cell.
+Output Format
+Print a single integer — the minimum total energy required to reach the destination, or -1 if it's not reachable.
+
+Constraints
+1 <= N, M <= 1000  
+
+-1 <= landing cost in a cell <= 10^4  
+
+Starting and ending cells will always have landing cost >= 0
+
+Sample Testcase 0
+Testcase Input
+3 3
+1 1 1
+1 -1 1
+1 1 1
+Testcase Output
+5
+Explanation
+First possible optimal path:
+ (0,0) → (0,1) → (0,2) → (1,2) → (2,2): cost = 5.
+
+
+Second possible optimal path:
+(0,0) → (1,0) → (2,0) → (2,1) → (2,2) : cost = 5.
+
+
+No middle path can be chosen due to the presence of restricted zones (-1).
+
+
+Therefore Minimum Landing cost: 1 + 1 + 1 + 1 + 1 = 5
+
+Sample Testcase 1
+Testcase Input
+3 3
+1 -1 1
+1 -1 1
+1 1 1
+
+
+Testcase Output
+5
+Explanation
+the only possible path is:
+
+
+(0,0) → (1,0) → (2,0) → (2,1) → (2,2) 
+
+
+path containing(0,1) and (1,1) can't be used due to presence of restricted zone(-1).
+
+
+So, the correct total minimum cost is:
+ 1 + 1 + 1 + 1 + 1 = 5
