@@ -1,0 +1,92 @@
+import java.util.Scanner;
+import java.util.Arrays;
+
+public class Main {
+    
+    public static int solve(int idx, int x, int y, int[] counts, int[][][] memo) {
+        // Base case: we've processed all possible levels up to the end of our array
+        if (idx >= counts.length) {
+            // If we still need to finish a consecutive sequence (x > 0 or y > 0), it's invalid
+            return (x == 0 && y == 0) ? 0 : -1000000;
+        }
+
+        // Return memoized result if already computed
+        if (memo[idx][x][y] != -1) {
+            return memo[idx][x][y];
+        }
+
+        int maxGroups = -1000000;
+
+        // We MUST fulfill the sequences started previously:
+        // 'x' instances needed for sequences that started at idx-1
+        // 'y' instances needed for sequences that started at idx-2
+        if (counts[idx] >= x + y) {
+            int remaining = counts[idx] - x - y;
+
+            // Try starting 'z' new consecutive sequences [idx, idx+1, idx+2]
+            for (int z = 0; z <= 2; z++) {
+                if (z <= remaining) {
+                    // Calculate identical triplets we can form from what's left
+                    int groupsFormedHere = z + (remaining - z) / 3;
+                    
+                    // Move to the next level
+                    int nextMax = solve(idx + 1, z, x, counts, memo);
+
+                    if (nextMax != -1000000) {
+                        maxGroups = Math.max(maxGroups, groupsFormedHere + nextMax);
+                    }
+                }
+            }
+        }
+
+        return memo[idx][x][y] = maxGroups;
+    }
+
+    public static int maxMutatedViruses(int V, int[] contamination_levels) {
+        // 1. Find the maximum level dynamically to safely size our arrays
+        int maxLevel = 0;
+        for (int level : contamination_levels) {
+            if (level > maxLevel) {
+                maxLevel = level;
+            }
+        }
+        
+        // 2. Size the array to maxLevel + 5 to comfortably handle idx+1 and idx+2 sequences
+        int[] counts = new int[maxLevel + 5];
+        for (int level : contamination_levels) {
+            counts[level]++;
+        }
+        
+        // 3. Initialize memoization table with -1
+        int[][][] memo = new int[maxLevel + 5][3][3];
+        for (int[][] arr2D : memo) {
+            for (int[] arr1D : arr2D) {
+                Arrays.fill(arr1D, -1);
+            }
+        }
+        
+        // 4. Start DP from index 0, with 0 carried over sequences
+        int result = solve(0, 0, 0, counts, memo);
+        
+        return Math.max(0, result);
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        
+        if (scanner.hasNextInt()) {
+            int V = scanner.nextInt();
+            int[] levels = new int[V];
+            
+            // Read all levels into an array
+            for (int i = 0; i < V; i++) {
+                levels[i] = scanner.nextInt();
+            }
+            
+            // Compute and print the result cleanly
+            System.out.println(maxMutatedViruses(V, levels));
+        }
+        
+        scanner.close();
+    }
+}
