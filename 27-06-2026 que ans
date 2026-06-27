@@ -1,0 +1,146 @@
+import sys
+
+def main():
+    data = sys.stdin.buffer.read().split()
+    idx = 0
+
+    N = int(data[idx]); idx += 1
+
+    adj = [[] for _ in range(N + 1)]
+    for _ in range(N - 1):
+        a = int(data[idx]); idx += 1
+        b = int(data[idx]); idx += 1
+        adj[a].append(b)
+        adj[b].append(a)
+
+    # ── Step 1: Root tree at 1, compute parent/depth/subtree_size/heavy child ──
+    parent       = [0]  * (N + 1)
+    depth        = [0]  * (N + 1)
+    subtree_size = [1]  * (N + 1)
+    heavy        = [-1] * (N + 1)
+
+    visited = bytearray(N + 1)
+    visited[1] = 1
+    parent[1]  = 0
+    order      = []
+
+    iter_stack = [(1, iter(adj[1]))]
+    while iter_stack:
+        node, it = iter_stack[-1]
+        try:
+            nb = next(it)
+            if not visited[nb]:
+                visited[nb] = 1
+                parent[nb]  = node
+                depth[nb]   = depth[node] + 1
+                iter_stack.append((nb, iter(adj[nb])))
+        except StopIteration:
+            order.append(node)
+            iter_stack.pop()
+
+    for node in order:          # leaves-first
+        par = parent[node]
+        if par:
+            subtree_size[par] += subtree_size[node]
+            if heavy[par] == -1 or subtree_size[node] > subtree_size[heavy[par]]:
+                heavy[par] = node
+
+    # ── Step 2: HLD — assign DFS positions along heavy chains ──
+    pos  = [0] * (N + 1)
+    head = [0] * (N + 1)
+    cur  = [0]
+
+    hld_stack = [(1, 1)]
+    while hld_stack:
+        node, ch = hld_stack.pop()
+        head[node] = ch
+        pos[node]  = cur[0]; cur[0] += 1
+
+        # Push light children first (processed later; each starts new chain)
+        for nb in adj[node]:
+            if nb != parent[node] and nb != heavy[node]:
+                hld_stack.append((nb, nb))
+
+        # Push heavy child last so it's processed next (contiguous positions)
+        if heavy[node] != -1:
+            hld_stack.append((heavy[node], ch))
+
+    SIZE = N
+
+    # ── Step 3: Segment tree with lazy XOR-toggle ──
+    seg  = [0] * (4 * SIZE + 4)
+    lazy = [0] * (4 * SIZE + 4)
+
+    def push_down(node, l, r):
+        if lazy[node]:
+            mid = (l + r) >> 1
+            seg[2*node]    = (mid - l + 1) - seg[2*node]
+            lazy[2*node]  ^= 1
+            seg[2*node+1]  = (r - mid) - seg[2*node+1]
+            lazy[2*node+1]^= 1
+            lazy[node] = 0
+
+    def update(node, l, r, ql, qr):
+        if ql > qr: return
+        if ql <= l and r <= qr:
+            seg[node]  = (r - l + 1) - seg[node]
+            lazy[node]^= 1
+            return
+        push_down(node, l, r)
+        mid = (l + r) >> 1
+        if ql <= mid: update(2*node, l, mid, ql, qr)
+        if qr >  mid: update(2*node+1, mid+1, r, ql, qr)
+        seg[node] = seg[2*node] + seg[2*node+1]
+
+    def query(node, l, r, ql, qr):
+        if ql > qr: return 0
+        if ql <= l and r <= qr: return seg[node]
+        push_down(node, l, r)
+        mid = (l + r) >> 1
+        res = 0
+        if ql <= mid: res += query(2*node, l, mid, ql, qr)
+        if qr >  mid: res += query(2*node+1, mid+1, r, ql, qr)
+        return res
+
+    R = SIZE - 1  # max valid index = N-1
+
+    # ── HLD path helpers ──
+    # Edge (parent[v], v) is stored at pos[v].
+    # LCA itself is excluded (no edge above it on the path).
+
+    def path_update(u, v):
+        while head[u] != head[v]:
+            if depth[head[u]] < depth[head[v]]: u, v = v, u
+            update(1, 0, R, pos[head[u]], pos[u])
+            u = parent[head[u]]
+        if depth[u] > depth[v]: u, v = v, u
+        # u is LCA; skip its position (no incoming edge on path)
+        if pos[u] + 1 <= pos[v]:
+            update(1, 0, R, pos[u]+1, pos[v])
+
+    def path_query(u, v):
+        res = 0
+        while head[u] != head[v]:
+            if depth[head[u]] < depth[head[v]]: u, v = v, u
+            res += query(1, 0, R, pos[head[u]], pos[u])
+            u = parent[head[u]]
+        if depth[u] > depth[v]: u, v = v, u
+        if pos[u] + 1 <= pos[v]:
+            res += query(1, 0, R, pos[u]+1, pos[v])
+        return res
+
+    # ── Step 4: Process queries ──
+    Q = int(data[idx]); idx += 1
+    out = []
+    for _ in range(Q):
+        t = int(data[idx]); idx += 1
+        u = int(data[idx]); idx += 1
+        v = int(data[idx]); idx += 1
+        if t == 1:
+            path_update(u, v)
+        else:
+            out.append(path_query(u, v))
+
+    print('\n'.join(map(str, out)))
+
+main()
