@@ -1,0 +1,118 @@
+import java.util.*;
+
+public class Main {
+
+    static class Node {
+        int[] cnt = new int[8];
+    }
+
+    static Node[] tree;
+    static int[] lazy;
+    static int n;
+
+    static void build(int idx, int l, int r, int[] arr) {
+        if (l == r) {
+            tree[idx].cnt[arr[l]] = 1;
+            return;
+        }
+        int mid = (l + r) / 2;
+        build(idx * 2, l, mid, arr);
+        build(idx * 2 + 1, mid + 1, r, arr);
+        pull(idx);
+    }
+
+    static void pull(int idx) {
+        for (int i = 0; i < 8; i++)
+            tree[idx].cnt[i] = tree[idx * 2].cnt[i] + tree[idx * 2 + 1].cnt[i];
+    }
+
+    static void apply(int idx, int mask) {
+        int[] temp = new int[8];
+        for (int i = 0; i < 8; i++)
+            temp[i ^ mask] = tree[idx].cnt[i];
+        tree[idx].cnt = temp;
+        lazy[idx] ^= mask;
+    }
+
+    static void push(int idx) {
+        if (lazy[idx] != 0) {
+            apply(idx * 2, lazy[idx]);
+            apply(idx * 2 + 1, lazy[idx]);
+            lazy[idx] = 0;
+        }
+    }
+
+    static void update(int idx, int l, int r, int ql, int qr, int mask) {
+        if (ql <= l && r <= qr) {
+            apply(idx, mask);
+            return;
+        }
+        push(idx);
+        int mid = (l + r) / 2;
+        if (ql <= mid) update(idx * 2, l, mid, ql, qr, mask);
+        if (qr > mid) update(idx * 2 + 1, mid + 1, r, ql, qr, mask);
+        pull(idx);
+    }
+
+    static int[] query(int idx, int l, int r, int ql, int qr) {
+        if (ql <= l && r <= qr)
+            return tree[idx].cnt.clone();
+
+        push(idx);
+        int mid = (l + r) / 2;
+
+        if (qr <= mid)
+            return query(idx * 2, l, mid, ql, qr);
+
+        if (ql > mid)
+            return query(idx * 2 + 1, mid + 1, r, ql, qr);
+
+        int[] left = query(idx * 2, l, mid, ql, qr);
+        int[] right = query(idx * 2 + 1, mid + 1, r, ql, qr);
+
+        int[] res = new int[8];
+        for (int i = 0; i < 8; i++)
+            res[i] = left[i] + right[i];
+        return res;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        n = sc.nextInt();
+        int q = sc.nextInt();
+
+        int[] arr = new int[n + 1];
+        for (int i = 1; i <= n; i++)
+            arr[i] = sc.nextInt();
+
+        tree = new Node[4 * n + 5];
+        lazy = new int[4 * n + 5];
+        for (int i = 0; i < tree.length; i++)
+            tree[i] = new Node();
+
+        build(1, 1, n, arr);
+
+        StringBuilder out = new StringBuilder();
+
+        for (int i = 0; i < q; i++) {
+            int type = sc.nextInt();
+            if (type == 1) {
+                int l = sc.nextInt();
+                int r = sc.nextInt();
+                int mask = sc.nextInt();
+                update(1, 1, n, l, r, mask);
+            } else {
+                int l = sc.nextInt();
+                int r = sc.nextInt();
+                int[] ans = query(1, 1, n, l, r);
+                int best = 0;
+                for (int x : ans)
+                    best = Math.max(best, x);
+                out.append(best).append('\n');
+            }
+        }
+
+        System.out.print(out);
+    }
+}
