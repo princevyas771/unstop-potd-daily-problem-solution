@@ -1,0 +1,85 @@
+Problem Statement
+You are given a tree with N nodes numbered from 1 to N. Each node contains a lowercase English letter(a-z). A path in the tree is defined as any sequence of nodes connected by edges without repetition. Your task is to find the total number of distinct paths in the tree such that the concatenation of characters on the path forms a palindrome.
+
+Paths can be of any length from 1 (a single node) up to the length of the longest path in the tree.
+
+Input Format
+The first line contains an integer N, the number of nodes in the tree.
+
+The second line contains a string of length N, where the i-th character is the letter assigned to the i-th node.
+
+The next N-1 lines each contain two integers u and v, denoting an undirected edge between nodes u and v.
+
+Output Format
+Print a single integer — the number of distinct paths in the tree that form palindromes when concatenated.
+
+Constraints
+1 ≤ N ≤ 10^5
+
+1 ≤ u, v ≤ N
+
+Sample Testcase 0
+Testcase Input
+5
+ababa
+1 2
+1 3
+3 4
+3 5
+Testcase Output
+9
+Explanation
+
+N = 5: Tree with 5 nodes.
+
+String = "ababa": Node 1='a', 2='b', 3='a', 4='b', 5='a'.
+
+Edges: 1-2, 1-3, 3-4, 3-5. Tree: 1(a) connects to 2(b) and 3(a); 3(a) connects to 4(b) and 5(a).
+
+Single nodes: 1(a), 2(b), 3(a), 4(b), 5(a) → 5 paths.
+
+Length 2: 1-3 (aa), 3-5 (aa) → 2 paths.
+
+Length 3: 1-3-5 (aaa) → 1 path.
+
+Length 4: 2-1-3-4 (baab) → 1 path.
+
+
+Total: 5 + 2 + 1 + 1 = 9 palindromic paths.
+
+Sample Testcase 1
+Testcase Input
+3
+abc
+1 2
+2 3
+Testcase Output
+3
+Explanation
+
+Single-node paths: Each node forms a palindrome (a, b, c).
+
+
+If path length = 1, then nodes 1, 2, 3 are palindromes (a, b, c).
+
+Count: 3.
+
+
+Multi-node paths: Check paths forming palindromes:
+
+
+If path 1-2 (a-b), then string = "ab", not a palindrome.
+
+If path 2-3 (b-c), then string = "bc", not a palindrome.
+
+If path 1-2-3 (a-b-c), then string = "abc", not a palindrome.
+
+
+Total palindromic paths: Only single-node paths (a, b, c) are palindromes.
+
+
+Total count: 3.
+
+
+
+Output: 3
