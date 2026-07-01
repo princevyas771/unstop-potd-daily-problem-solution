@@ -1,0 +1,122 @@
+Problem Statement
+In a hospital, there are N doctors available and M shifts that need to be covered in a single day. Each doctor is trained in one specialization and can work on at most one shift per day.
+
+Each shift requires exactly one doctor with a specific specialization. Your task is to assign doctors to shifts such that:
+
+No doctor is assigned more than one shift.
+
+A shift is assigned to a doctor only if their specialization matches the shift's requirement.
+
+Your goal is to minimize the total number of unassigned shifts.
+
+You are given the list of doctor specializations and the required specialization for each shift. Determine the minimum number of shifts that will remain unassigned due to the lack of available or matching doctors.
+
+Input Format
+First line contains two integers N and M denoting the number od doctors and the shifts time that need to be covered in a single day.
+Second line contains N space-separated integers — specialization of each doctor (1-indexed)  
+Third line contains M space-separated integers — required specialization for each shift (1-indexed)
+
+Output Format
+Print the minimum number of shifts that could not be assigned to any doctor.
+
+Constraints
+1 ≤ N,M ≤ 10^3
+
+1 ≤ Si,Ri ≤ 10^2
+
+Sample Testcase 0
+Testcase Input
+4 4
+1 1 1 1
+1 1 1 1
+Testcase Output
+0
+Explanation
+All doctors have specialization 1.
+
+
+All shifts require specialization 1.
+
+
+Assignment Strategy:
+
+
+Each shift needs a doctor with spec 1, and we have 4 such doctors.
+
+
+
+Shift	Required Spec	Assign Doctor?
+1	1	 Doctor 1
+2	1	 Doctor 2
+3	1	 Doctor 3
+4	1	 Doctor 4
+
+
+ 
+
+
+
+Explanation:
+
+
+Total shifts: 4
+
+
+All assigned successfully → No unassigned shifts.
+
+Output : 0
+
+Sample Testcase 1
+Testcase Input
+5 6
+1 2 2 3 4
+2 2 3 5 1 2
+Testcase Output
+2
+Explanation
+Doctors' Specializations:
+Doctor 1 → 1
+Doctor 2 → 2
+Doctor 3 → 2
+Doctor 4 → 3
+Doctor 5 → 4
+
+
+Shifts' Required Specializations:
+Shift 1 → 2
+Shift 2 → 2
+Shift 3 → 3
+Shift 4 → 5
+Shift 5 → 1
+Shift 6 → 2
+
+
+Assignment Strategy:
+
+
+
+Shift	Required Spec	Assign Doctor?
+1	2	 Doctor 2 (spec 2)
+2	2	 Doctor 3 (spec 2)
+3	3	 Doctor 4 (spec 3)
+4	5	 No doctor with spec 5
+5	1	 Doctor 1 (spec 1)
+6	2	 No available doctor with spec 2
+
+
+ 
+
+
+
+Explanation:
+
+
+Total shifts: 6
+
+
+Assigned: 4 shifts
+
+
+Unassigned: 2 shifts → Shift 4 (no spec 5 doctor), Shift 6 (no spec 2 doctor left)
+
+Output : 2
