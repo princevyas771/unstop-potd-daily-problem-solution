@@ -1,0 +1,55 @@
+Problem Statement
+In the kingdom of Numeria, wealth fluctuated across villages, creating unrest. To restore stability, King Algo summoned his trusted advisor, Sir Codewell, with a challenge:
+
+"Find the smallest possible maximum wealth difference among any K contiguous villages!"
+
+Sir Codewell knew brute force wouldn’t work—he needed a smart, efficient approach. With careful calculations, he searched for the most balanced segment among N villages.
+
+Would he succeed in restoring harmony, or would Numeria remain in chaos? The kingdom’s fate rested on his solution...
+
+Input Format
+The first line of input conains an integer N representing the number of elements in the array.
+
+The second line of input contains an array arr of length N containing integers separated by space.
+
+The third line of input contains an integer K representing the size of the subarray.
+
+Output Format
+Print an integer representing the smallest maximum difference among all contiguous subarrays of size k.
+
+Constraints
+1 ≤ N ≤ 10^5
+
+−10^6 ≤ arr[i] ≤ 10^6
+
+1 ≤ K ≤ N
+
+Sample Testcase 0
+Testcase Input
+6
+8 3 9 1 6 5
+3
+Testcase Output
+5
+Explanation
+The possible contiguous subarrays of size k = 3 are:
+
+
+[8, 3, 9] → Max difference = 9 - 3 = 6
+[3, 9, 1] → Max difference = 9 - 1 = 8
+[9, 1, 6] → Max difference = 9 - 1 = 8
+[1, 6, 5] → Max difference = 6 - 1 = 5
+
+
+The smallest maximum difference is 5, achieved by the subarray [6, 5, 1].
+
+Sample Testcase 1
+Testcase Input
+5
+10 20 30 40 50
+2
+Testcase Output
+10
+Explanation
+Each pair has a difference of 10, which is the smallest possible.
+
