@@ -1,0 +1,51 @@
+Problem Statement
+Arjun runs a toy warehouse where he has a long line of special boxes placed in a straight row. Each box has a number painted on it, representing its weight. One day, his manager gives him a challenge:
+
+"Without moving or touching any boxes, find a single spot in the line where everything before that point is lighter than X, and everything from that point onward is X or heavier."
+Arjun is allowed to walk along the row and look at each box one by one, but he cannot pick them up, rearrange them, or write anything down. He can only use his memory and his observation skills.
+
+The rule is very strict: he must draw the dividing line between two boxes — not on top of a box — and the rule must hold perfectly. If even one box before the line is X or more, or one box after the line is less than X, then the partition is considered invalid.
+
+Now Arjun turns to you for help. Given the list of box weights and the number X, can you tell him whether it's possible to find such a valid partition point in the line?
+
+Input Format
+First line: two integers N and X
+
+
+Second line: N space-separated integers (values of the linked list from head to tail)
+
+Output Format
+Print YES if such a partition point exists
+
+
+Otherwise, print NO
+
+Constraints
+1 ≤ N ≤ 10^5
+
+
+-10^6 ≤ value, X ≤ 10^6
+
+Sample Testcase 0
+Testcase Input
+6 10
+1 4 5 11 12 13
+Testcase Output
+YES
+Explanation
+Partition point exists between 5 and 11
+
+
+Before: 1, 4, 5 < 10
+
+
+After: 11, 12, 13 ≥ 10
+
+Sample Testcase 1
+Testcase Input
+5 5
+6 3 7 4 2
+Testcase Output
+NO
+Explanation
+No valid partition — even though some values are ≥ 5 and some < 5, they are mixed and not cleanly separable in one split.
