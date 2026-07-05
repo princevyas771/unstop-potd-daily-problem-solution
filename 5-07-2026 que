@@ -1,0 +1,112 @@
+Problem Statement
+In a corrupted data forwarding system, each node is linked to at most one other node via a pointer. However, due to system failures, some forwarding chains may contain cycles or become disconnected.
+
+You are given a collection of N nodes. Each node contains:
+
+A unique identifier node_id
+
+An integer value
+
+A pointer to the next node by its next_id (or -1 if it points to null)
+
+Your task is to:
+
+Starting from a given start_id, traverse the forwarding chain using only pointer manipulations.
+
+Recover the longest possible simple (cycle-free) chain starting from the given node.
+
+Break cycles in-place by setting the next of the first repeating node to null.
+
+Print the values of the nodes in the recovered chain, from the start node to the last node, space-separated.
+
+You must not use arrays, hash maps, or sets for cycle detection — only pointer manipulation and O(1) extra memory per node are allowed.
+
+Input Format
+The first line contains an integer N — the number of nodes.
+
+The next N lines each contain three space-separated integers:
+node_id value next_id —
+where:
+
+node_id is the unique ID of the node
+
+value is the data stored in the node
+
+next_id is the ID of the node it forwards to, or -1 if it points to null
+
+The last line contains an integer start_id — the ID of the starting node for traversal.
+
+Output Format
+A single line containing space-separated integers - the values of nodes in the recovered simple chain, starting from the start_id.
+
+Constraints
+1 ≤ N ≤ 10⁵
+
+All node_ids are distinct and positive integers
+
+All value fields are integers in the range [-10⁶, 10⁶]
+
+next_id is either -1 or the node_id of another node in the list
+
+Sample Testcase 0
+Testcase Input
+5
+10 1 20
+20 2 30
+30 3 40
+40 4 20
+50 9 -1
+10
+Testcase Output
+1 2 3 4
+Explanation
+Input: 5 nodes: (10,1,20), (20,2,30), (30,3,40), (40,4,20), (50,9,-1); start=10.
+
+
+
+Create nodes, store in map by node_id.
+
+Link nodes using next_id (-1 = null).
+
+Traverse from start (10): 10→20→30→40→20.
+
+Detect cycle at 20, break by setting 40’s next to null.
+
+Print values: 1 (10) → 2 (20) → 3 (30) → 4 (40).
+
+Ignore node 50 (not in chain).
+
+
+Output: 1 2 3 4
+
+Sample Testcase 1
+Testcase Input
+6
+1 5 2
+2 6 3
+3 7 4
+4 8 5
+5 9 3
+6 100 -1
+1
+Testcase Output
+5 6 7 8 9
+Explanation
+Input: 6 nodes: (1,5,2), (2,6,3), (3,7,4), (4,8,5), (5,9,3), (6,100,-1); start=1.
+
+
+
+Create nodes, store in map by node_id.
+
+Link nodes using next_id.
+
+Traverse from start (1): 1→2→3→4→5→3.
+
+Detect cycle at 3, break by setting 5’s next to null.
+
+Print values: 5 (1) → 6 (2) → 7 (3) → 8 (4) → 9 (5).
+
+Ignore node 6 (not in chain).
+
+
+Output: 5 6 7 8 9
