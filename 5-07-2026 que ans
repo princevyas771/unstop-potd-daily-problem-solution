@@ -1,0 +1,105 @@
+import java.util.*;
+
+public class Main {
+
+    static class Node {
+        int id;
+        int value;
+        Node next;
+
+        Node(int id, int value) {
+            this.id = id;
+            this.value = value;
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        int n = sc.nextInt();
+
+        // Store all nodes by node_id
+        Map<Integer, Node> map = new HashMap<>();
+
+        // Temporarily store next_id for linking later
+        int[] ids = new int[n];
+        int[] nextIds = new int[n];
+
+        for (int i = 0; i < n; i++) {
+            int nodeId = sc.nextInt();
+            int value = sc.nextInt();
+            int nextId = sc.nextInt();
+
+            map.put(nodeId, new Node(nodeId, value));
+            ids[i] = nodeId;
+            nextIds[i] = nextId;
+        }
+
+        int startId = sc.nextInt();
+
+        // Link nodes
+        for (int i = 0; i < n; i++) {
+            Node current = map.get(ids[i]);
+            int nextId = nextIds[i];
+            if (nextId != -1) {
+                current.next = map.get(nextId);
+            }
+        }
+
+        Node start = map.get(startId);
+
+        // Break cycle if present
+        breakCycle(start);
+
+        // Print recovered chain
+        StringBuilder sb = new StringBuilder();
+        Node curr = start;
+        while (curr != null) {
+            sb.append(curr.value);
+            if (curr.next != null) sb.append(" ");
+            curr = curr.next;
+        }
+
+        System.out.println(sb.toString());
+        sc.close();
+    }
+
+    static void breakCycle(Node head) {
+        if (head == null) return;
+
+        Node slow = head;
+        Node fast = head;
+        boolean hasCycle = false;
+
+        // Step 1: Detect cycle using Floyd's algorithm
+        while (fast != null && fast.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+
+            if (slow == fast) {
+                hasCycle = true;
+                break;
+            }
+        }
+
+        if (!hasCycle) return;
+
+        // Step 2: Find the start of the cycle
+        slow = head;
+        while (slow != fast) {
+            slow = slow.next;
+            fast = fast.next;
+        }
+
+        Node cycleStart = slow;
+
+        // Step 3: Find the node just before cycleStart in the cycle
+        Node ptr = cycleStart;
+        while (ptr.next != cycleStart) {
+            ptr = ptr.next;
+        }
+
+        // Break the cycle
+        ptr.next = null;
+    }
+}
