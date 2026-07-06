@@ -1,0 +1,41 @@
+Problem Statement
+You are given an array containing N non-negative integers. Your task is to determine whether any value occurs more than once in the array.
+
+If at least one duplicate element is present, print YES. Otherwise, print NO.
+
+Input Format
+The first line contains an integer T, denoting the number of test cases.
+
+For each test case:
+- The first line contains an integer N, representing the size of the array.
+- The second line contains N space-separated integers.
+
+Output Format
+For each test case, print:
+- YES if the array contains one or more duplicate values.
+- NO if all elements in the array are distinct.
+
+Constraints
+1 ≤ T ≤ 50
+1 ≤ N ≤ 10^5
+0 ≤ arr[i] ≤ 10^5
+
+Sample Testcase 0
+Testcase Input
+1
+5
+2 8 6 1 9
+Testcase Output
+NO
+Explanation
+Every element appears exactly once, so there are no duplicate values.
+
+Sample Testcase 1
+Testcase Input
+1
+6
+4 7 1 9 4 3
+Testcase Output
+YES
+Explanation
+The value 4 appears twice in the array, so a duplicate exists.
