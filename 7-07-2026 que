@@ -1,0 +1,48 @@
+Problem Statement
+Deep beneath the capital city lies an ancient vault system built by a civilization known for its engineering marvels. The vault consists of a sequence of chambers arranged in a straight corridor. Each chamber contains a certain number of energy crystals.
+
+An explorer named Aria has obtained a map of the vault. She discovers that every chamber can either be entered or skipped. However, the vault is protected by a sophisticated security mechanism. If two neighboring chambers are opened consecutively, the security system detects the activity and immediately seals the entire vault.
+
+Because of this restriction, Aria must carefully decide which chambers to open.
+
+Each chamber contains a different number of energy crystals. Aria wants to collect as many crystals as possible while ensuring that no two adjacent chambers are opened.
+
+For example, consider the corridor:
+
+[5] [8] [4] [10] [3]
+
+If Aria opens chambers containing 8 and 10 crystals, she collects 18 crystals. She cannot open both 8 and 4 because they are adjacent.
+
+The vault can contain thousands of chambers, making it impossible to evaluate every possible combination manually. Your task is to determine the maximum number of crystals that Aria can collect while respecting the vault's security constraints.
+
+Input Format
+First line contains an integer N, representing the number of chambers.
+Second line contains N space-separated integers representing crystals in each chamber.
+
+Output Format
+Print a single integer representing the maximum crystals that can be collected.
+
+Constraints
+1 ≤ N ≤ 100000
+1 ≤ crystals[i] ≤ 10^9
+
+Sample Testcase 0
+Testcase Input
+5
+5 8 4 10 3
+Testcase Output
+18
+Explanation
+Open chambers containing 8 and 10.
+Total = 18.
+
+Sample Testcase 1
+Testcase Input
+6
+2 7 9 3 1 8
+Testcase Output
+19
+Explanation
+Choose chambers:
+2 + 9 + 8 = 19
+No two selected chambers are adjacent.
