@@ -1,0 +1,42 @@
+
+    // Create a copy to sort, since the original is passed as a const reference
+    std::vector<long> sorted_distances = distances;
+    std::sort(sorted_distances.begin(), sorted_distances.end());
+    
+    int count = 1;
+    long last_selected_position = sorted_distances[0];
+    
+    for (int i = 1; i < n; ++i) {
+        if (sorted_distances[i] - last_selected_position >= d) {
+            count++;
+            last_selected_position = sorted_distances[i];
+        }
+    }
+    
+    return count;
+}
+
+// Driver code
+int main() {
+    // Optimizing standard I/O operations for performance
+    std::ios_base::sync_with_stdio(false);
+    std::cin.tie(NULL);
+
+    int n, d;
+    // Read N and D
+    if (std::cin >> n >> d) {
+        std::vector<long> distances(n);
+        
+        // Read the distances array
+        for (int i = 0; i < n; ++i) {
+            std::cin >> distances[i];
+        }
+        
+        // Call the logic function and print the result
+        int result = user_logic(n, d, distances);
+        std::cout << result << "\n";
+    }
+    
+    return 0;
+}
+                            
