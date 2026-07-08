@@ -1,0 +1,57 @@
+Problem Statement
+A town is preparing for its annual lantern festival. There are N lantern checkpoints placed along a straight road. Each checkpoint is located at a certain distance from the town entrance.
+
+To create the longest possible lantern route for visitors, the organizers want to select the maximum number of checkpoints such that the distance between any two consecutive selected checkpoints is at least D meters.
+
+Help the organizers determine the maximum number of checkpoints that can be included in the route.
+
+Input Format
+The first line contains two integers N and D.
+The second line contains N integers representing the distances of the checkpoints from the town entrance.
+
+Output Format
+Print a single integer representing the maximum number of checkpoints that can be selected.
+
+Constraints
+1 ≤ N ≤ 100000
+1 ≤ D ≤ 1000000000
+0 ≤ checkpointDistance[i] ≤ 1000000000
+
+The checkpoint distances are not necessarily sorted.
+
+Sample Testcase 0
+Testcase Input
+5 3
+1 2 4 8 9
+Testcase Output
+3
+Explanation
+The checkpoints are at positions 1, 2, 4, 8, 9.
+
+
+One optimal selection is:
+1
+4
+8
+
+
+The distance between consecutive selected checkpoints is at least 3.
+Therefore, the maximum number of selected checkpoints is 3.
+
+Sample Testcase 1
+Testcase Input
+7 2
+0 1 2 4 6 7 9
+Testcase Output
+5
+Explanation
+An optimal selection is:
+0
+2
+4
+6
+9
+
+
+The distance between every consecutive selected checkpoint is at least 2.
+Therefore, the maximum number of selected checkpoints is 5.
