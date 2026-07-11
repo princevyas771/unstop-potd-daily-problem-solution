@@ -1,0 +1,33 @@
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.ArrayDeque;
+import java.util.Deque;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+        int N = Integer.parseInt(br.readLine());
+        Deque<Long> stack = new ArrayDeque<>();
+
+        for (int i = 0; i < N; i++) {
+            String line = br.readLine();
+
+            if (line.startsWith("ADD")) {
+                String[] parts = line.split(" ");
+                long x = Long.parseLong(parts[1]);
+                stack.push(x);
+            } else { // REMOVE
+                if (!stack.isEmpty()) {
+                    stack.pop();
+                }
+            }
+        }
+
+        if (stack.isEmpty()) {
+            System.out.println(-1);
+        } else {
+            System.out.println(stack.peek());
+        }
+    }
+}
