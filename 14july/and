@@ -1,0 +1,29 @@
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        int n = sc.nextInt();
+        int[] energy = new int[n];
+
+        for (int i = 0; i < n; i++) {
+            energy[i] = sc.nextInt();
+        }
+
+        long[] dp = new long[n];
+        Arrays.fill(dp, Long.MAX_VALUE);
+        dp[0] = 0;
+
+        for (int i = 1; i < n; i++) {
+            for (int j = 0; j < i; j++) {
+                long cost = dp[j] + (long) Math.abs(energy[i] - energy[j]) * (i - j);
+                if (cost < dp[i]) {
+                    dp[i] = cost;
+                }
+            }
+        }
+
+        System.out.println(dp[n - 1]);
+    }
+}
