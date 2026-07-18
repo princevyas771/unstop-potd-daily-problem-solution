@@ -1,0 +1,163 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+
+    static class FastScanner {
+        private final InputStream in = System.in;
+        private final byte[] buffer = new byte[1 << 16];
+        private int ptr = 0, len = 0;
+
+        private int read() throws IOException {
+            if (ptr >= len) {
+                len = in.read(buffer);
+                ptr = 0;
+                if (len <= 0) return -1;
+            }
+            return buffer[ptr++];
+        }
+
+        long nextLong() throws IOException {
+            int c;
+            while ((c = read()) <= ' ') {
+                if (c == -1) return -1;
+            }
+            long sign = 1;
+            if (c == '-') {
+                sign = -1;
+                c = read();
+            }
+            long val = 0;
+            while (c > ' ') {
+                val = val * 10 + c - '0';
+                c = read();
+            }
+            return val * sign;
+        }
+
+        int nextInt() throws IOException {
+            return (int) nextLong();
+        }
+    }
+
+    static int n, q;
+    static long[] sum;
+    static int[] max, secondMax, maxCount;
+
+    static void build(int node, int l, int r, int[] arr) {
+        if (l == r) {
+            sum[node] = arr[l];
+            max[node] = arr[l];
+            secondMax[node] = -1;
+            maxCount[node] = 1;
+            return;
+        }
+
+        int mid = (l + r) >> 1;
+        build(node << 1, l, mid, arr);
+        build(node << 1 | 1, mid + 1, r, arr);
+        pull(node);
+    }
+
+    static void pull(int node) {
+        int L = node << 1;
+        int R = L | 1;
+
+        sum[node] = sum[L] + sum[R];
+
+        if (max[L] > max[R]) {
+            max[node] = max[L];
+            maxCount[node] = maxCount[L];
+            secondMax[node] = Math.max(secondMax[L], max[R]);
+        } else if (max[L] < max[R]) {
+            max[node] = max[R];
+            maxCount[node] = maxCount[R];
+            secondMax[node] = Math.max(max[L], secondMax[R]);
+        } else {
+            max[node] = max[L];
+            maxCount[node] = maxCount[L] + maxCount[R];
+            secondMax[node] = Math.max(secondMax[L], secondMax[R]);
+        }
+    }
+
+    static void pushMin(int node, int x) {
+        if (max[node] <= x) return;
+        sum[node] -= (long) (max[node] - x) * maxCount[node];
+        max[node] = x;
+    }
+
+    static void pushDown(int node) {
+        int L = node << 1;
+        int R = L | 1;
+
+        if (max[L] > max[node]) pushMin(L, max[node]);
+        if (max[R] > max[node]) pushMin(R, max[node]);
+    }
+
+    static void rangeChMin(int node, int l, int r, int ql, int qr, int x) {
+        if (r < ql || l > qr || max[node] <= x) return;
+
+        if (ql <= l && r <= qr && secondMax[node] < x) {
+            pushMin(node, x);
+            return;
+        }
+
+        pushDown(node);
+
+        int mid = (l + r) >> 1;
+        rangeChMin(node << 1, l, mid, ql, qr, x);
+        rangeChMin(node << 1 | 1, mid + 1, r, ql, qr, x);
+
+        pull(node);
+    }
+
+    static long rangeSum(int node, int l, int r, int ql, int qr) {
+        if (r < ql || l > qr) return 0;
+
+        if (ql <= l && r <= qr) return sum[node];
+
+        pushDown(node);
+
+        int mid = (l + r) >> 1;
+        return rangeSum(node << 1, l, mid, ql, qr)
+                + rangeSum(node << 1 | 1, mid + 1, r, ql, qr);
+    }
+
+    public static void main(String[] args) throws Exception {
+        FastScanner fs = new FastScanner();
+
+        n = fs.nextInt();
+        q = fs.nextInt();
+
+        int[] arr = new int[n + 1];
+        for (int i = 1; i <= n; i++) arr[i] = fs.nextInt();
+
+        int size = 4 * n + 5;
+
+        sum = new long[size];
+        max = new int[size];
+        secondMax = new int[size];
+        maxCount = new int[size];
+
+        build(1, 1, n, arr);
+
+        StringBuilder out = new StringBuilder();
+
+        while (q-- > 0) {
+            int type = fs.nextInt();
+
+            if (type == 1) {
+                int l = fs.nextInt();
+                int r = fs.nextInt();
+                int v = fs.nextInt();
+                rangeChMin(1, 1, n, l, r, v);
+            } else {
+                int l = fs.nextInt();
+                int r = fs.nextInt();
+                out.append(rangeSum(1, 1, n, l, r)).append('\n');
+            }
+        }
+
+        System.out.print(out);
+    }
+}
