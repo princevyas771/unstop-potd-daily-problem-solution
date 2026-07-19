@@ -1,0 +1,111 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    static ArrayList<Integer>[] graph, revGraph;
+    static boolean[] visited;
+    static ArrayList<Integer> order = new ArrayList<>();
+    static int[] comp;
+
+    static void dfs1(int start) {
+        Stack<Integer> stack = new Stack<>();
+        Stack<Integer> idx = new Stack<>();
+
+        stack.push(start);
+        idx.push(0);
+        visited[start] = true;
+
+        while (!stack.isEmpty()) {
+            int u = stack.peek();
+            int i = idx.pop();
+
+            if (i < graph[u].size()) {
+                idx.push(i + 1);
+                int v = graph[u].get(i);
+                if (!visited[v]) {
+                    visited[v] = true;
+                    stack.push(v);
+                    idx.push(0);
+                }
+            } else {
+                stack.pop();
+                order.add(u);
+            }
+        }
+    }
+
+    static void dfs2(int start, int id) {
+        Stack<Integer> stack = new Stack<>();
+        stack.push(start);
+        comp[start] = id;
+
+        while (!stack.isEmpty()) {
+            int u = stack.pop();
+            for (int v : revGraph[u]) {
+                if (comp[v] == -1) {
+                    comp[v] = id;
+                    stack.push(v);
+                }
+            }
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+
+        int N = Integer.parseInt(st.nextToken());
+        int M = Integer.parseInt(st.nextToken());
+
+        graph = new ArrayList[N + 1];
+        revGraph = new ArrayList[N + 1];
+
+        for (int i = 1; i <= N; i++) {
+            graph[i] = new ArrayList<>();
+            revGraph[i] = new ArrayList<>();
+        }
+
+        for (int i = 0; i < M; i++) {
+            st = new StringTokenizer(br.readLine());
+            int u = Integer.parseInt(st.nextToken());
+            int v = Integer.parseInt(st.nextToken());
+
+            graph[u].add(v);
+            revGraph[v].add(u);
+        }
+
+        visited = new boolean[N + 1];
+
+        for (int i = 1; i <= N; i++) {
+            if (!visited[i]) dfs1(i);
+        }
+
+        comp = new int[N + 1];
+        Arrays.fill(comp, -1);
+
+        int sccCount = 0;
+        for (int i = order.size() - 1; i >= 0; i--) {
+            int v = order.get(i);
+            if (comp[v] == -1) {
+                dfs2(v, sccCount++);
+            }
+        }
+
+        int[] indegree = new int[sccCount];
+
+        for (int u = 1; u <= N; u++) {
+            for (int v : graph[u]) {
+                if (comp[u] != comp[v]) {
+                    indegree[comp[v]]++;
+                }
+            }
+        }
+
+        int answer = 0;
+        for (int i = 0; i < sccCount; i++) {
+            if (indegree[i] == 0) answer++;
+        }
+
+        System.out.println(answer);
+    }
+}
