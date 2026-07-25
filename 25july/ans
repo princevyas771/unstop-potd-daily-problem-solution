@@ -1,0 +1,59 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
+
+public class Main {
+    static int[][] compatibility;
+    static long[] dp;
+    static int total;
+
+    static long solve(int mask) {
+        if (mask == (1 << total) - 1) {
+            return 0;
+        }
+
+        if (dp[mask] != -1) {
+            return dp[mask];
+        }
+
+        int first = 0;
+        while ((mask & (1 << first)) != 0) {
+            first++;
+        }
+
+        long best = 0;
+
+        for (int j = first + 1; j < total; j++) {
+            if ((mask & (1 << j)) == 0) {
+                int newMask = mask | (1 << first) | (1 << j);
+                best = Math.max(best, compatibility[first][j] + solve(newMask));
+            }
+        }
+
+        return dp[mask] = best;
+    }
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+        int N = Integer.parseInt(br.readLine());
+        total = 2 * N;
+
+        compatibility = new int[total][total];
+
+        for (int i = 0; i < total; i++) {
+            StringTokenizer st = new StringTokenizer(br.readLine());
+            for (int j = 0; j < total; j++) {
+                compatibility[i][j] = Integer.parseInt(st.nextToken());
+            }
+        }
+
+        dp = new long[1 << total];
+        for (int i = 0; i < dp.length; i++) {
+            dp[i] = -1;
+        }
+
+        System.out.println(solve(0));
+    }
+}
