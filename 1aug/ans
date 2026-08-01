@@ -1,0 +1,156 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    static final long MOD = 1000000007L;
+
+    static class FastScanner {
+        private final InputStream in = System.in;
+        private final byte[] buffer = new byte[1 << 16];
+        private int ptr = 0, len = 0;
+
+        private int read() throws IOException {
+            if (ptr >= len) {
+                len = in.read(buffer);
+                ptr = 0;
+                if (len <= 0) return -1;
+            }
+            return buffer[ptr++];
+        }
+
+        long nextLong() throws IOException {
+            int c;
+            while ((c = read()) <= ' ') {
+                if (c == -1) return -1;
+            }
+            long sign = 1;
+            if (c == '-') {
+                sign = -1;
+                c = read();
+            }
+            long val = 0;
+            while (c > ' ') {
+                val = val * 10 + (c - '0');
+                c = read();
+            }
+            return val * sign;
+        }
+
+        int nextInt() throws IOException {
+            return (int) nextLong();
+        }
+    }
+
+    static int[] parent, size;
+    static long[] weight;
+
+    static class Pair {
+        int root;
+        long w;
+        Pair(int r, long w) {
+            this.root = r;
+            this.w = w;
+        }
+    }
+
+    static Pair find(int x) {
+        if (parent[x] == x) return new Pair(x, 1);
+        Pair res = find(parent[x]);
+        weight[x] = weight[x] * res.w % MOD;
+        parent[x] = res.root;
+        return new Pair(parent[x], weight[x]);
+    }
+
+    static long modPow(long a, long e) {
+        long res = 1;
+        a %= MOD;
+        while (e > 0) {
+            if ((e & 1) == 1) res = res * a % MOD;
+            a = a * a % MOD;
+            e >>= 1;
+        }
+        return res;
+    }
+
+    static long inv(long x) {
+        return modPow(x, MOD - 2);
+    }
+
+    public static void main(String[] args) throws Exception {
+        FastScanner fs = new FastScanner();
+
+        int N = fs.nextInt();
+        int M = fs.nextInt();
+
+        parent = new int[N + 1];
+        size = new int[N + 1];
+        weight = new long[N + 1];
+
+        for (int i = 1; i <= N; i++) {
+            parent[i] = i;
+            size[i] = 1;
+            weight[i] = 1;
+        }
+
+        StringBuilder out = new StringBuilder();
+
+        for (int i = 0; i < M; i++) {
+            int type = fs.nextInt();
+
+            if (type == 1) {
+                int u = fs.nextInt();
+                int v = fs.nextInt();
+                long p = fs.nextLong();
+                long q = fs.nextLong();
+
+                long val = p % MOD;
+                val = val * inv(q) % MOD;
+
+                Pair fu = find(u);
+                Pair fv = find(v);
+
+                if (fu.root == fv.root) {
+                    long implied = fu.w * inv(fv.w) % MOD;
+                    if (implied == val)
+                        out.append("OK\n");
+                    else
+                        out.append("CONTRADICTION\n");
+                } else {
+                    if (size[fu.root] < size[fv.root]) {
+                        parent[fu.root] = fv.root;
+                        weight[fu.root] = val * fv.w % MOD;
+                        weight[fu.root] = weight[fu.root] * inv(fu.w) % MOD;
+                        size[fv.root] += size[fu.root];
+                    } else {
+                        parent[fv.root] = fu.root;
+                        weight[fv.root] = fu.w * inv(val) % MOD;
+                        weight[fv.root] = weight[fv.root] * inv(fv.w) % MOD;
+                        size[fu.root] += size[fv.root];
+                    }
+                    out.append("OK\n");
+                }
+
+            } else {
+                int u = fs.nextInt();
+                int v = fs.nextInt();
+
+                if (u == v) {
+                    out.append("1\n");
+                    continue;
+                }
+
+                Pair fu = find(u);
+                Pair fv = find(v);
+
+                if (fu.root != fv.root) {
+                    out.append("UNKNOWN\n");
+                } else {
+                    long ans = fu.w * inv(fv.w) % MOD;
+                    out.append(ans).append('\n');
+                }
+            }
+        }
+
+        System.out.print(out);
+    }
+}
