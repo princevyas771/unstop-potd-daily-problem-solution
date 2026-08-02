@@ -1,0 +1,79 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+
+    static int M;
+    static long[] masks;
+    static long target;
+    static int mid;
+    static int[] leftMasks;
+    static int[] leftCnt;
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+        M = Integer.parseInt(br.readLine().trim());
+
+        masks = new long[M];
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        for (int i = 0; i < M; i++) {
+            masks[i] = Long.parseLong(st.nextToken());
+        }
+
+        st = new StringTokenizer(br.readLine());
+        long S = Long.parseLong(st.nextToken());
+        long T = Long.parseLong(st.nextToken());
+
+        target = S ^ T;
+
+        mid = M / 2;
+
+        int leftSize = 1 << mid;
+        leftMasks = new int[leftSize];
+        leftCnt = new int[leftSize];
+
+        HashMap<Long, Integer> best = new HashMap<>();
+
+        // Enumerate left half
+        for (int mask = 0; mask < leftSize; mask++) {
+            long xor = 0;
+            int bits = 0;
+            for (int i = 0; i < mid; i++) {
+                if ((mask & (1 << i)) != 0) {
+                    xor ^= masks[i];
+                    bits++;
+                }
+            }
+            Integer prev = best.get(xor);
+            if (prev == null || bits < prev) {
+                best.put(xor, bits);
+            }
+        }
+
+        int ans = Integer.MAX_VALUE;
+
+        int rightBits = M - mid;
+        int rightSize = 1 << rightBits;
+
+        // Enumerate right half
+        for (int mask = 0; mask < rightSize; mask++) {
+            long xor = 0;
+            int bits = 0;
+            for (int i = 0; i < rightBits; i++) {
+                if ((mask & (1 << i)) != 0) {
+                    xor ^= masks[mid + i];
+                    bits++;
+                }
+            }
+
+            long need = target ^ xor;
+            Integer left = best.get(need);
+            if (left != null) {
+                ans = Math.min(ans, left + bits);
+            }
+        }
+
+        System.out.println(ans == Integer.MAX_VALUE ? -1 : ans);
+    }
+}
