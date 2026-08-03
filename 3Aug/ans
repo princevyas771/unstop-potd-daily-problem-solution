@@ -1,0 +1,63 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+
+    static int N;
+    static long[] X, Th;
+
+    static boolean can(long P) {
+        long left = Long.MIN_VALUE / 4;
+        long right = Long.MAX_VALUE / 4;
+
+        for (int i = 0; i < N; i++) {
+            if (P < Th[i]) return false;
+
+            long d = P - Th[i];
+            left = Math.max(left, X[i] - d);
+            right = Math.min(right, X[i] + d);
+
+            if (left > right) return false;
+        }
+        return true;
+    }
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+        N = Integer.parseInt(br.readLine().trim());
+
+        X = new long[N];
+        Th = new long[N];
+
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        for (int i = 0; i < N; i++) {
+            X[i] = Long.parseLong(st.nextToken());
+        }
+
+        st = new StringTokenizer(br.readLine());
+        long low = 0, high = 0;
+        for (int i = 0; i < N; i++) {
+            Th[i] = Long.parseLong(st.nextToken());
+            low = Math.max(low, Th[i]);
+        }
+
+        long minX = X[0], maxX = X[0];
+        for (int i = 1; i < N; i++) {
+            minX = Math.min(minX, X[i]);
+            maxX = Math.max(maxX, X[i]);
+        }
+        high = low + (maxX - minX);
+
+        while (low < high) {
+            long mid = low + (high - low) / 2;
+            if (can(mid)) {
+                high = mid;
+            } else {
+                low = mid + 1;
+            }
+        }
+
+        System.out.println(low);
+    }
+}
