@@ -1,0 +1,147 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+
+    static class Edge {
+        int u, v;
+        long l, r;
+        Edge(int u, int v, long l, long r) {
+            this.u = u;
+            this.v = v;
+            this.l = l;
+            this.r = r;
+        }
+    }
+
+    static class Query {
+        int u, v, idx;
+        long t;
+        Query(int u, int v, long t, int idx) {
+            this.u = u;
+            this.v = v;
+            this.t = t;
+            this.idx = idx;
+        }
+    }
+
+    static class Event implements Comparable<Event> {
+        long time;
+        int type; // 0 = add, 1 = query, 2 = remove
+        int id;
+
+        Event(long time, int type, int id) {
+            this.time = time;
+            this.type = type;
+            this.id = id;
+        }
+
+        @Override
+        public int compareTo(Event o) {
+            if (time != o.time)
+                return Long.compare(time, o.time);
+            return Integer.compare(type, o.type);
+        }
+    }
+
+    static int[] parent, size;
+
+    static void initDSU(int n) {
+        parent = new int[n + 1];
+        size = new int[n + 1];
+        for (int i = 1; i <= n; i++) {
+            parent[i] = i;
+            size[i] = 1;
+        }
+    }
+
+    static int find(int x) {
+        while (parent[x] != x) x = parent[x];
+        return x;
+    }
+
+    static void union(int a, int b) {
+        a = find(a);
+        b = find(b);
+        if (a == b) return;
+        if (size[a] < size[b]) {
+            int t = a;
+            a = b;
+            b = t;
+        }
+        parent[b] = a;
+        size[a] += size[b];
+    }
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+        int N = Integer.parseInt(br.readLine().trim());
+        int M = Integer.parseInt(br.readLine().trim());
+
+        Edge[] edges = new Edge[M];
+        List<Event> events = new ArrayList<>();
+
+        for (int i = 0; i < M; i++) {
+            StringTokenizer st = new StringTokenizer(br.readLine());
+            int a = Integer.parseInt(st.nextToken());
+            int b = Integer.parseInt(st.nextToken());
+            long l = Long.parseLong(st.nextToken());
+            long r = Long.parseLong(st.nextToken());
+            edges[i] = new Edge(a, b, l, r);
+
+            events.add(new Event(l, 0, i));
+            events.add(new Event(r, 2, i));
+        }
+
+        int Q = Integer.parseInt(br.readLine().trim());
+        Query[] queries = new Query[Q];
+        boolean[] ans = new boolean[Q];
+
+        for (int i = 0; i < Q; i++) {
+            StringTokenizer st = new StringTokenizer(br.readLine());
+            int x = Integer.parseInt(st.nextToken());
+            int y = Integer.parseInt(st.nextToken());
+            long t = Long.parseLong(st.nextToken());
+            queries[i] = new Query(x, y, t, i);
+            events.add(new Event(t, 1, i));
+        }
+
+        Collections.sort(events);
+
+        HashSet<Integer> active = new HashSet<>();
+
+        int i = 0;
+        while (i < events.size()) {
+            long currentTime = events.get(i).time;
+
+            while (i < events.size() && events.get(i).time == currentTime && events.get(i).type == 0) {
+                active.add(events.get(i).id);
+                i++;
+            }
+
+            initDSU(N);
+            for (int id : active) {
+                Edge e = edges[id];
+                union(e.u, e.v);
+            }
+
+            while (i < events.size() && events.get(i).time == currentTime && events.get(i).type == 1) {
+                Query q = queries[events.get(i).id];
+                ans[q.idx] = (find(q.u) == find(q.v));
+                i++;
+            }
+
+            while (i < events.size() && events.get(i).time == currentTime && events.get(i).type == 2) {
+                active.remove(events.get(i).id);
+                i++;
+            }
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (boolean x : ans) {
+            sb.append(x ? "YES" : "NO").append('\n');
+        }
+        System.out.print(sb);
+    }
+}
