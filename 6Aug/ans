@@ -1,0 +1,24 @@
+import sys
+import heapq
+
+input = sys.stdin.readline
+
+n = int(input())
+intervals = []
+
+for _ in range(n):
+    s, e = map(int, input().split())
+    intervals.append((s, e))
+
+intervals.sort()
+
+pq = []
+ans = 0
+
+for s, e in intervals:
+    while pq and pq[0] <= s:
+        heapq.heappop(pq)
+    heapq.heappush(pq, e)
+    ans = max(ans, len(pq))
+
+print(ans)
