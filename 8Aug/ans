@@ -1,0 +1,239 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+
+    static class FastScanner {
+        private final InputStream in = System.in;
+        private final byte[] buffer = new byte[1 << 16];
+        private int ptr = 0, len = 0;
+
+        private int read() throws IOException {
+            if (ptr >= len) {
+                len = in.read(buffer);
+                ptr = 0;
+                if (len <= 0) return -1;
+            }
+            return buffer[ptr++];
+        }
+
+        long nextLong() throws IOException {
+            int c;
+            do {
+                c = read();
+            } while (c <= ' ');
+
+            long sign = 1;
+            if (c == '-') {
+                sign = -1;
+                c = read();
+            }
+
+            long res = 0;
+            while (c > ' ') {
+                res = res * 10 + (c - '0');
+                c = read();
+            }
+            return res * sign;
+        }
+
+        int nextInt() throws IOException {
+            return (int) nextLong();
+        }
+
+        char nextChar() throws IOException {
+            int c;
+            do {
+                c = read();
+            } while (c <= ' ');
+            return (char) c;
+        }
+    }
+
+    static class Fenwick {
+        int n;
+        int[] tree;
+
+        Fenwick(int n) {
+            this.n = n;
+            tree = new int[n + 1];
+        }
+
+        void add(int index, int delta) {
+            while (index <= n) {
+                tree[index] += delta;
+                index += index & -index;
+            }
+        }
+
+        int sum(int index) {
+            int result = 0;
+            while (index > 0) {
+                result += tree[index];
+                index -= index & -index;
+            }
+            return result;
+        }
+
+        // Returns the smallest index whose prefix sum >= k.
+        int kth(int k) {
+            int index = 0;
+
+            int bitMask = Integer.highestOneBit(n);
+
+            for (; bitMask != 0; bitMask >>= 1) {
+                int next = index + bitMask;
+
+                if (next <= n && tree[next] < k) {
+                    index = next;
+                    k -= tree[next];
+                }
+            }
+
+            return index + 1;
+        }
+    }
+
+    static class Query {
+        char type;
+        long a;
+        long b;
+
+        Query(char type, long a, long b) {
+            this.type = type;
+            this.a = a;
+            this.b = b;
+        }
+    }
+
+    static int lowerBound(long[] a, long x) {
+        int lo = 0, hi = a.length;
+
+        while (lo < hi) {
+            int mid = (lo + hi) >>> 1;
+
+            if (a[mid] < x)
+                lo = mid + 1;
+            else
+                hi = mid;
+        }
+
+        return lo;
+    }
+
+    static int upperBound(long[] a, long x) {
+        int lo = 0, hi = a.length;
+
+        while (lo < hi) {
+            int mid = (lo + hi) >>> 1;
+
+            if (a[mid] <= x)
+                lo = mid + 1;
+            else
+                hi = mid;
+        }
+
+        return lo;
+    }
+
+    public static void main(String[] args) throws Exception {
+        FastScanner fs = new FastScanner();
+
+        int n = fs.nextInt();
+
+        long[] price = new long[n + 1];
+
+        // At most n + q values need to be compressed.
+        long[] allValues = new long[n + 200_005];
+        int valueCount = 0;
+
+        for (int i = 1; i <= n; i++) {
+            price[i] = fs.nextLong();
+            allValues[valueCount++] = price[i];
+        }
+
+        int q = fs.nextInt();
+
+        Query[] queries = new Query[q];
+
+        for (int j = 0; j < q; j++) {
+            char type = fs.nextChar();
+
+            if (type == 'U') {
+                int i = fs.nextInt();
+                long v = fs.nextLong();
+
+                queries[j] = new Query(type, i, v);
+                allValues[valueCount++] = v;
+
+            } else {
+                long x = fs.nextLong();
+
+                queries[j] = new Query(type, x, 0);
+
+                // C thresholds are also useful during compression.
+                if (type == 'C') {
+                    allValues[valueCount++] = x;
+                }
+            }
+        }
+
+        // Sort and remove duplicates.
+        Arrays.sort(allValues, 0, valueCount);
+
+        int m = 0;
+
+        for (int i = 0; i < valueCount; i++) {
+            if (m == 0 || allValues[i] != allValues[m - 1]) {
+                allValues[m++] = allValues[i];
+            }
+        }
+
+        long[] coords = Arrays.copyOf(allValues, m);
+
+        Fenwick bit = new Fenwick(m);
+
+        // Insert initial prices.
+        for (int i = 1; i <= n; i++) {
+            int pos = lowerBound(coords, price[i]) + 1;
+            bit.add(pos, 1);
+        }
+
+        StringBuilder out = new StringBuilder();
+
+        for (Query query : queries) {
+
+            if (query.type == 'U') {
+                int i = (int) query.a;
+                long newPrice = query.b;
+
+                // Remove old price.
+                int oldPos = lowerBound(coords, price[i]) + 1;
+                bit.add(oldPos, -1);
+
+                // Store and add new price.
+                price[i] = newPrice;
+
+                int newPos = lowerBound(coords, newPrice) + 1;
+                bit.add(newPos, 1);
+
+            } else if (query.type == 'C') {
+                long x = query.a;
+
+                // Number of compressed coordinates <= x.
+                int pos = upperBound(coords, x);
+
+                out.append(bit.sum(pos)).append('\n');
+
+            } else { // K
+                int k = (int) query.a;
+
+                int pos = bit.kth(k);
+
+                out.append(coords[pos - 1]).append('\n');
+            }
+        }
+
+        System.out.print(out);
+    }
+}
