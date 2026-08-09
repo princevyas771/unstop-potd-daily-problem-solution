@@ -1,0 +1,37 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        int n = Integer.parseInt(st.nextToken());
+        int k = Integer.parseInt(st.nextToken());
+
+        st = new StringTokenizer(br.readLine());
+
+        Map<Integer, Long> freq = new HashMap<>();
+
+        // Prefix XOR = 0 before processing any element
+        freq.put(0, 1L);
+
+        int prefixXor = 0;
+        long answer = 0;
+
+        for (int i = 0; i < n; i++) {
+            int value = Integer.parseInt(st.nextToken());
+
+            prefixXor ^= value;
+
+            // Need previous prefix XOR = prefixXor ^ k
+            int required = prefixXor ^ k;
+
+            answer += freq.getOrDefault(required, 0L);
+
+            freq.put(prefixXor, freq.getOrDefault(prefixXor, 0L) + 1);
+        }
+
+        System.out.println(answer);
+    }
+}
