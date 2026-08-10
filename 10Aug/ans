@@ -1,0 +1,207 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+
+    // Fenwick Tree supporting:
+    // - point update
+    // - prefix sum
+    // - find the index of the k-th active element
+    static class FenwickTree {
+        private final int n;
+        private final int[] tree;
+
+        FenwickTree(int n) {
+            this.n = n;
+            this.tree = new int[n + 1];
+        }
+
+        void add(int index, int delta) {
+            for (int i = index; i <= n; i += i & -i) {
+                tree[i] += delta;
+            }
+        }
+
+        int sum(int index) {
+            int result = 0;
+            for (int i = index; i > 0; i -= i & -i) {
+                result += tree[i];
+            }
+            return result;
+        }
+
+        // Returns the smallest index whose prefix sum >= k.
+        int findKth(int k) {
+            int index = 0;
+
+            // Largest power of 2 <= n
+            int bit = Integer.highestOneBit(n);
+
+            for (; bit != 0; bit >>= 1) {
+                int next = index + bit;
+
+                if (next <= n && tree[next] < k) {
+                    index = next;
+                    k -= tree[next];
+                }
+            }
+
+            return index + 1;
+        }
+    }
+
+    static class FastScanner {
+        private final InputStream in = System.in;
+        private final byte[] buffer = new byte[1 << 16];
+        private int ptr = 0;
+        private int len = 0;
+
+        private int read() throws IOException {
+            if (ptr >= len) {
+                len = in.read(buffer);
+                ptr = 0;
+
+                if (len <= 0) {
+                    return -1;
+                }
+            }
+            return buffer[ptr++];
+        }
+
+        int nextInt() throws IOException {
+            int c;
+            do {
+                c = read();
+            } while (c <= ' ');
+
+            int sign = 1;
+
+            if (c == '-') {
+                sign = -1;
+                c = read();
+            }
+
+            int result = 0;
+
+            while (c > ' ') {
+                result = result * 10 + (c - '0');
+                c = read();
+            }
+
+            return result * sign;
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        FastScanner fs = new FastScanner();
+
+        int q = fs.nextInt();
+
+        int[] type = new int[q];
+        int[] value = new int[q];
+
+        // Collect all W values for coordinate compression.
+        int[] allValues = new int[q];
+        int valueCount = 0;
+
+        for (int i = 0; i < q; i++) {
+            type[i] = fs.nextInt();
+
+            if (type[i] == 1 || type[i] == 2) {
+                value[i] = fs.nextInt();
+                allValues[valueCount++] = value[i];
+            }
+        }
+
+        // Coordinate compression.
+        Arrays.sort(allValues, 0, valueCount);
+
+        int uniqueCount = 0;
+
+        for (int i = 0; i < valueCount; i++) {
+            if (i == 0 || allValues[i] != allValues[i - 1]) {
+                allValues[uniqueCount++] = allValues[i];
+            }
+        }
+
+        FenwickTree bit = new FenwickTree(uniqueCount);
+
+        // Number of currently active records.
+        int size = 0;
+
+        StringBuilder output = new StringBuilder();
+
+        for (int i = 0; i < q; i++) {
+
+            if (type[i] == 1) {
+                // Insert W.
+                int index = lowerBound(allValues, uniqueCount, value[i]) + 1;
+
+                bit.add(index, 1);
+                size++;
+
+            } else if (type[i] == 2) {
+                // Delete W.
+                int index = lowerBound(allValues, uniqueCount, value[i]) + 1;
+
+                bit.add(index, -1);
+                size--;
+
+            } else {
+                // Median query.
+                if (size == 0) {
+                    output.append(-1).append('\n');
+                    continue;
+                }
+
+                if ((size & 1) == 1) {
+                    // Odd number of elements:
+                    // median is the (size + 1) / 2-th smallest.
+                    int k = (size + 1) / 2;
+
+                    int index = bit.findKth(k);
+                    output.append(allValues[index - 1]).append('\n');
+
+                } else {
+                    // Even number of elements:
+                    // Need the two middle elements:
+                    //
+                    // left  = size / 2-th smallest
+                    // right = size / 2 + 1-th smallest
+                    //
+                    // floor((left + right) / 2)
+                    int k1 = size / 2;
+                    int k2 = k1 + 1;
+
+                    int index1 = bit.findKth(k1);
+                    int index2 = bit.findKth(k2);
+
+                    long left = allValues[index1 - 1];
+                    long right = allValues[index2 - 1];
+
+                    output.append((left + right) / 2).append('\n');
+                }
+            }
+        }
+
+        System.out.print(output);
+    }
+
+    // First position i in arr[0..length) where arr[i] >= target.
+    static int lowerBound(int[] arr, int length, int target) {
+        int left = 0;
+        int right = length;
+
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+
+            if (arr[mid] < target) {
+                left = mid + 1;
+            } else {
+                right = mid;
+            }
+        }
+
+        return left;
+    }
+}
