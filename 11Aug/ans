@@ -1,0 +1,55 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+
+    static class Request {
+        int deadline;
+        long crates;
+
+        Request(int deadline, long crates) {
+            this.deadline = deadline;
+            this.crates = crates;
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+        int n = Integer.parseInt(br.readLine().trim());
+
+        Request[] requests = new Request[n];
+
+        for (int i = 0; i < n; i++) {
+            StringTokenizer st = new StringTokenizer(br.readLine());
+            int d = Integer.parseInt(st.nextToken());
+            long c = Long.parseLong(st.nextToken());
+
+            requests[i] = new Request(d, c);
+        }
+
+        // Process requests in increasing order of deadline.
+        Arrays.sort(requests, Comparator.comparingInt(r -> r.deadline));
+
+        // Min-heap: smallest crate request is removed first.
+        PriorityQueue<Long> minHeap = new PriorityQueue<>();
+
+        long totalCrates = 0;
+
+        for (Request request : requests) {
+            minHeap.add(request.crates);
+            totalCrates += request.crates;
+
+            /*
+             * At most 'deadline' villages can be completed
+             * by this deadline.
+             */
+            if (minHeap.size() > request.deadline) {
+                long removed = minHeap.poll();
+                totalCrates -= removed;
+            }
+        }
+
+        System.out.println(totalCrates);
+    }
+}
