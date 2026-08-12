@@ -1,0 +1,207 @@
+import sys
+import random
+
+sys.setrecursionlimit(1000000)
+
+
+class Node:
+    __slots__ = ('key', 'priority', 'left', 'right', 'size')
+
+    def __init__(self, key):
+        self.key = key
+        self.priority = random.randint(1, 1 << 30)
+        self.left = None
+        self.right = None
+        self.size = 1
+
+
+def get_size(node):
+    if node is None:
+        return 0
+    return node.size
+
+
+def update(node):
+    if node is not None:
+        node.size = 1 + get_size(node.left) + get_size(node.right)
+
+
+def split(root, key):
+    # left: keys < key
+    # right: keys >= key
+
+    if root is None:
+        return None, None
+
+    if root.key < key:
+        a, b = split(root.right, key)
+        root.right = a
+        update(root)
+        return root, b
+    else:
+        a, b = split(root.left, key)
+        root.left = b
+        update(root)
+        return a, root
+
+
+def merge(left, right):
+    if left is None:
+        return right
+
+    if right is None:
+        return left
+
+    if left.priority > right.priority:
+        left.right = merge(left.right, right)
+        update(left)
+        return left
+    else:
+        right.left = merge(left, right.left)
+        update(right)
+        return right
+
+
+def contains(root, key):
+    while root is not None:
+        if root.key == key:
+            return True
+
+        if key < root.key:
+            root = root.left
+        else:
+            root = root.right
+
+    return False
+
+
+def insert(root, key):
+    # Ignore duplicate ADD
+    if contains(root, key):
+        return root
+
+    left, right = split(root, key)
+    new_node = Node(key)
+
+    return merge(merge(left, new_node), right)
+
+
+def erase(root, key):
+    if root is None:
+        return None
+
+    if key == root.key:
+        return merge(root.left, root.right)
+
+    if key < root.key:
+        root.left = erase(root.left, key)
+    else:
+        root.right = erase(root.right, key)
+
+    update(root)
+    return root
+
+
+def before(root, key):
+    # Largest value strictly smaller than key
+    answer = None
+
+    while root is not None:
+        if root.key < key:
+            answer = root.key
+            root = root.right
+        else:
+            root = root.left
+
+    return answer
+
+
+def after(root, key):
+    # Smallest value strictly greater than key
+    answer = None
+
+    while root is not None:
+        if root.key > key:
+            answer = root.key
+            root = root.left
+        else:
+            root = root.right
+
+    return answer
+
+
+def kth(root, k):
+    # 1-indexed K-th smallest element
+
+    if k <= 0 or k > get_size(root):
+        return None
+
+    while root is not None:
+        left_size = get_size(root.left)
+
+        if k == left_size + 1:
+            return root.key
+
+        if k <= left_size:
+            root = root.left
+        else:
+            k -= left_size + 1
+            root = root.right
+
+    return None
+
+
+def main():
+    input = sys.stdin.readline
+
+    q = int(input())
+    root = None
+    output = []
+
+    for _ in xrange(q):
+        parts = input().split()
+
+        command = parts[0]
+        value = int(parts[1])
+
+        if command == "ADD":
+            root = insert(root, value)
+
+        elif command == "REMOVE":
+            root = erase(root, value)
+
+        elif command == "EXISTS":
+            if contains(root, value):
+                output.append("YES")
+            else:
+                output.append("NO")
+
+        elif command == "BEFORE":
+            answer = before(root, value)
+
+            if answer is None:
+                output.append("NONE")
+            else:
+                output.append(str(answer))
+
+        elif command == "AFTER":
+            answer = after(root, value)
+
+            if answer is None:
+                output.append("NONE")
+            else:
+                output.append(str(answer))
+
+        elif command == "POSITION":
+            answer = kth(root, value)
+
+            if answer is None:
+                output.append("NONE")
+            else:
+                output.append(str(answer))
+
+    sys.stdout.write("\n".join(output))
+
+
+if __name__ == "__main__":
+    main()
