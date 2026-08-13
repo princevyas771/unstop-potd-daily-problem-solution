@@ -1,0 +1,51 @@
+#include <stdio.h>
+
+#define MAX_VALUE 100001
+
+int main() {
+    int n, k;
+    scanf("%d %d", &n, &k);
+
+    int present[MAX_VALUE] = {0};
+
+    for (int i = 0; i < n; i++) {
+        int x;
+        scanf("%d", &x);
+
+        if (x != -1) {
+            present[x] = 1;
+        }
+    }
+
+    int bestX = -1;
+    int bestY = -1;
+    int bestDistance = MAX_VALUE;
+
+    for (int x = 1; x < k; x++) {
+        if (!present[x])
+            continue;
+
+        int y = 2 * k - x;
+
+        if (y >= MAX_VALUE)
+            continue;
+
+        if (present[y]) {
+            int distance = k - x;
+
+            if (distance < bestDistance) {
+                bestDistance = distance;
+                bestX = x;
+                bestY = y;
+            }
+        }
+    }
+
+    if (bestX != -1) {
+        printf("%d %d\n", bestX, bestY);
+    } else {
+        printf("-1\n");
+    }
+
+    return 0;
+}
