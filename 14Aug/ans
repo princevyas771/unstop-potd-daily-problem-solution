@@ -1,0 +1,151 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+
+    static class State implements Comparable<State> {
+        int node;
+        long power;
+
+        State(int node, long power) {
+            this.node = node;
+            this.power = power;
+        }
+
+        @Override
+        public int compareTo(State other) {
+            return Long.compare(other.power, this.power); // max-heap
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        FastScanner fs = new FastScanner(System.in);
+
+        int n = fs.nextInt();
+        int m = fs.nextInt();
+        int k = fs.nextInt();
+
+        // Adjacency list using arrays for lower memory usage.
+        int[] head = new int[n];
+        Arrays.fill(head, -1);
+
+        int[] to = new int[2 * m];
+        int[] next = new int[2 * m];
+
+        int edgeCount = 0;
+
+        for (int i = 0; i < m; i++) {
+            int u = fs.nextInt() - 1;
+            int v = fs.nextInt() - 1;
+
+            to[edgeCount] = v;
+            next[edgeCount] = head[u];
+            head[u] = edgeCount++;
+
+            to[edgeCount] = u;
+            next[edgeCount] = head[v];
+            head[v] = edgeCount++;
+        }
+
+        // best[v] = maximum remaining tower power with which v can be reached.
+        long[] best = new long[n];
+        Arrays.fill(best, -1);
+
+        PriorityQueue<State> pq = new PriorityQueue<>();
+
+        // Multiple towers may be in the same town.
+        // Keep only the one with maximum power.
+        for (int i = 0; i < k; i++) {
+            int town = fs.nextInt() - 1;
+            long power = fs.nextLong();
+
+            if (power > best[town]) {
+                best[town] = power;
+                pq.offer(new State(town, power));
+            }
+        }
+
+        int covered = 0;
+
+        while (!pq.isEmpty()) {
+            State cur = pq.poll();
+
+            int u = cur.node;
+            long power = cur.power;
+
+            // This is an outdated heap entry.
+            if (power != best[u]) {
+                continue;
+            }
+
+            // This town is covered by at least one tower.
+            covered++;
+
+            // No power remains to cross another road.
+            if (power == 0) {
+                continue;
+            }
+
+            long nextPower = power - 1;
+
+            for (int e = head[u]; e != -1; e = next[e]) {
+                int v = to[e];
+
+                if (nextPower > best[v]) {
+                    best[v] = nextPower;
+                    pq.offer(new State(v, nextPower));
+                }
+            }
+        }
+
+        System.out.println(covered);
+    }
+
+    // Fast input for large inputs.
+    static class FastScanner {
+        private final InputStream in;
+        private final byte[] buffer = new byte[1 << 16];
+        private int ptr = 0;
+        private int len = 0;
+
+        FastScanner(InputStream in) {
+            this.in = in;
+        }
+
+        private int read() throws IOException {
+            if (ptr >= len) {
+                len = in.read(buffer);
+                ptr = 0;
+                if (len <= 0) {
+                    return -1;
+                }
+            }
+            return buffer[ptr++];
+        }
+
+        long nextLong() throws IOException {
+            int c;
+            do {
+                c = read();
+            } while (c <= ' ');
+
+            boolean negative = false;
+            if (c == '-') {
+                negative = true;
+                c = read();
+            }
+
+            long result = 0;
+            while (c > ' ') {
+                result = result * 10 + (c - '0');
+                c = read();
+            }
+
+            return negative ? -result : result;
+        }
+
+        int nextInt() throws IOException {
+            return (int) nextLong();
+        }
+    }
+}
