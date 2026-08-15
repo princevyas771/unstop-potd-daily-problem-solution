@@ -1,0 +1,222 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+
+    static class FastScanner {
+        private final InputStream in = System.in;
+        private final byte[] buffer = new byte[1 << 16];
+        private int ptr = 0, len = 0;
+
+        private int read() throws IOException {
+            if (ptr >= len) {
+                len = in.read(buffer);
+                ptr = 0;
+                if (len <= 0) return -1;
+            }
+            return buffer[ptr++];
+        }
+
+        int nextInt() throws IOException {
+            int c;
+            do {
+                c = read();
+            } while (c <= ' ');
+
+            int sign = 1;
+            if (c == '-') {
+                sign = -1;
+                c = read();
+            }
+
+            int res = 0;
+            while (c > ' ') {
+                res = res * 10 + (c - '0');
+                c = read();
+            }
+            return res * sign;
+        }
+    }
+
+    static int LOG;
+    static int[] head, to, next;
+    static int edgeCnt;
+
+    static void addEdge(int u, int v) {
+        to[edgeCnt] = v;
+        next[edgeCnt] = head[u];
+        head[u] = edgeCnt++;
+    }
+
+    public static void main(String[] args) throws Exception {
+        FastScanner fs = new FastScanner();
+
+        int n = fs.nextInt();
+
+        head = new int[n + 1];
+        Arrays.fill(head, -1);
+
+        to = new int[2 * Math.max(0, n - 1)];
+        next = new int[2 * Math.max(0, n - 1)];
+
+        for (int i = 0; i < n - 1; i++) {
+            int u = fs.nextInt();
+            int v = fs.nextInt();
+
+            addEdge(u, v);
+            addEdge(v, u);
+        }
+
+        int[] a = new int[n + 1];
+
+        for (int i = 1; i <= n; i++) {
+            a[i] = fs.nextInt();
+        }
+
+        /*
+         * LOG is enough to represent every possible
+         * ancestor distance.
+         */
+        LOG = 1;
+        while ((1 << LOG) <= n) {
+            LOG++;
+        }
+
+        /*
+         * up[k][v] =
+         *     the 2^k-th ancestor of v.
+         *
+         * max[k][v] =
+         *     maximum strength among the 2^k ancestors
+         *     immediately above v.
+         */
+        int[][] up = new int[LOG][n + 1];
+        int[][] max = new int[LOG][n + 1];
+
+        /*
+         * Root the tree at node 1.
+         */
+        int[] parent = new int[n + 1];
+        int[] depth = new int[n + 1];
+
+        Arrays.fill(parent, -1);
+        parent[1] = 0;
+        depth[1] = 0;
+
+        int[] queue = new int[n];
+        int qHead = 0;
+        int qTail = 0;
+
+        queue[qTail++] = 1;
+
+        while (qHead < qTail) {
+            int u = queue[qHead++];
+
+            for (int e = head[u]; e != -1; e = next[e]) {
+                int v = to[e];
+
+                if (v == parent[u]) {
+                    continue;
+                }
+
+                parent[v] = u;
+                depth[v] = depth[u] + 1;
+                queue[qTail++] = v;
+            }
+        }
+
+        /*
+         * Build level 0.
+         *
+         * up[0][v] = parent of v
+         * max[0][v] = strength of parent
+         */
+        for (int v = 1; v <= n; v++) {
+            up[0][v] = parent[v];
+
+            if (parent[v] != 0) {
+                max[0][v] = a[parent[v]];
+            } else {
+                max[0][v] = Integer.MIN_VALUE;
+            }
+        }
+
+        /*
+         * Binary lifting table.
+         */
+        for (int k = 1; k < LOG; k++) {
+            for (int v = 1; v <= n; v++) {
+                int mid = up[k - 1][v];
+
+                if (mid == 0) {
+                    up[k][v] = 0;
+                    max[k][v] = max[k - 1][v];
+                } else {
+                    up[k][v] = up[k - 1][mid];
+
+                    max[k][v] = Math.max(
+                            max[k - 1][v],
+                            max[k - 1][mid]
+                    );
+                }
+            }
+        }
+
+        int[] guardian = new int[n + 1];
+        Arrays.fill(guardian, -1);
+
+        /*
+         * For every node v, find the closest ancestor whose
+         * strength is strictly greater than a[v].
+         *
+         * Start at v and jump upward as far as possible while
+         * all ancestors in the jumped segment have strength
+         * <= a[v].
+         *
+         * After this process, the parent of cur is the answer.
+         */
+        for (int v = 2; v <= n; v++) {
+
+            int cur = v;
+
+            for (int k = LOG - 1; k >= 0; k--) {
+
+                /*
+                 * If the whole 2^k ancestor segment contains
+                 * no value greater than a[v], we can safely
+                 * skip that segment.
+                 */
+                if (up[k][cur] != 0 &&
+                    max[k][cur] <= a[v]) {
+
+                    cur = up[k][cur];
+                }
+            }
+
+            /*
+             * cur is now the deepest node on the path whose
+             * ancestors (from cur upward) do not contain a
+             * stronger node within the skipped range.
+             *
+             * Its parent is the first ancestor that is
+             * strictly stronger, if one exists.
+             */
+            int p = parent[cur];
+
+            if (p != 0 && a[p] > a[v]) {
+                guardian[v] = p;
+            }
+        }
+
+        StringBuilder out = new StringBuilder();
+
+        for (int i = 1; i <= n; i++) {
+            if (i > 1) {
+                out.append(' ');
+            }
+            out.append(guardian[i]);
+        }
+
+        System.out.println(out);
+    }
+}
